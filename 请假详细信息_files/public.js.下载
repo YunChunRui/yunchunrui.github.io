@@ -1,0 +1,1145 @@
+// 判断是否客户端环境   *******
+function _isClient(obj) {
+		return window._isClose != undefined;
+}
+
+/**
+ * ajax再次封装（注意：现已不建议使用）
+ * 1、对非GET或POST请求，通过POST+_method模拟
+ * 2、自动添加上下文路径
+ * 
+ * @param url
+ *          请求URL（不用带上下文路径）
+ * @param method
+ *          请求方法,不传默认GET
+ * @param data
+ *          数据
+ * @param successCallback(data)
+ *          成功回调,data:由服务器返回的数据
+ * @param errorCallback(xhr,
+ *          error) 错误回调,xhr:XMLHttpRequest 对象,error:错误信息,如果发生了错误，错误信息除了得到
+ *          null 之外，还可能是 "timeout", "error", "notmodified" 和 "parsererror"。
+ * @returns
+ */
+function _ajax(url, method, data, successCallback, errorCallback, enableLoading) {
+	$.ajax({
+		url: url,
+		type: method,
+		dataType: "json",
+		data: data,
+		error: errorCallback,
+		success: successCallback,
+		enableLoading: enableLoading || false
+	})
+}
+/**
+ * ajax再次封装NEW，便于统一管理（注意：现已不建议使用）
+ * 1、对非GET或POST请求，通过POST+_method模拟
+ * 2、自动添加上下文路径
+ * 
+ * @param settings 配置,与$.ajax一致，额外配置项enableLoading(启用Loading,默认false),loadingText（loading文本）
+ * @returns
+ */
+function _asyn(settings) {
+	$.ajax(settings); //$.ajax已被扩展
+}
+
+/**
+ * 成功消息
+ * @param message
+ * @returns
+ * top为弹框距离顶部距离。
+ */
+function _showInfoMsg(message, top) {
+	Vue.prototype.$message({
+		type: 'success',
+		message: message,
+		duration: 2000,
+		iconClass: "el-icon-check",
+		offset: top
+	})
+	$(".el-message").css("backgroundColor", "#67C23A");
+}
+
+/**
+ * 无权限,拒绝访问提醒
+ */
+function _showAccessDenyMsg() {
+	Vue.prototype.$alert('您无此权限', '错误', {
+		confirmButtonText: '确定',
+		callback: action => {
+			top.location.href = "/";
+		}
+	});
+}
+
+/**
+ * 未身份认证提醒
+ */
+function _showUnauthorizedMsg() {
+	Vue.prototype.$alert('由于您长时间没有操作系统,为保证系统安全,请点击“确定”重新登录系统', '认证过期', {
+		confirmButtonText: '确定',
+		callback: action => {
+			top.location.href = "/";
+		}
+	});
+}
+
+/**
+ * 错误消息
+ * @param message
+ * @param type 0 用于数据的增删改 1用户数据的查询
+ * @returns
+ */
+function _showErrMsg(message, type) {
+	let haveError = $(".isErrorClass").text();
+	if(!haveError) {
+		if(message == '状态码500') {
+			message = '数据加载失败，请稍后重试'
+		} else if(message == '状态码504') {
+			message = '数据处理超时，请稍后查看结果（请勿重复提交）'
+		} else if(message == '状态码502') {
+			message = '网关超时，请稍后重试'
+		}
+		type = type || 0;
+		let headText = '';
+		if(type === 0) {
+			headText = '操作失败'
+		} else {
+			headText = '获取数据失败'
+		}
+		Vue.prototype.$alert(message, headText, {
+			confirmButtonText: '确定',
+			customClass: 'isErrorClass',
+			callback: action => {
+				$(".isErrorClass").parent().remove()
+			}
+		});
+	}
+
+}
+
+/**
+ * 警告消息
+ * @param message
+ * @returns
+ */
+function _showWarnMsg(message) {
+
+}
+
+var _loading;
+
+/**
+ * 显示加载中效果
+ * @returns
+ */
+function _showLoading(loadingText) {
+	loadingText = loadingText || '加载中，请稍等……';
+	$("#_loading").remove();
+	$("body").append(`<div class="loading-container" id ="_loading" style="display: block;"><div class="slice"><div data-loader="ball-rotate" class="loading"></div><div class="tips">${loadingText}</div></div></div>`);
+	//  _loading = Vue.prototype.$loading({
+	//    lock: true,
+	//    text: loadingText,
+	//    spinner: 'el-icon-loading',
+	//    background: 'rgba(0, 0, 0, 0.7)',
+	//  });
+}
+
+/**
+ * 隐藏加载中效果
+ * @returns
+ */
+function _hideLoading() {
+	$("#_loading").remove();
+	//  if(_loading){
+	//    _loading.close();
+	//  }
+}
+
+/**
+ * 获取选中的房间
+ * @param campuses 校区数组
+ * @param idChainArr 选中的ID链数组
+ * @returns
+ */
+function _getSelectedRooms(campuses, idChainArr) {
+	var leafArr = _getSubTreesLeaves(campuses, idChainArr);
+	return leafArr.filter(function(leaf) {
+		return leaf.buildingFloorId != undefined;
+	})
+}
+/**
+ * 获取选中的宗教
+ * @param  religious  宗教数组
+ * @param religiousArr 选中的ID链数组
+ * @returns
+ */
+function _getSelectedFaith(religious, religiousArr) {
+	leafArr = _getSubTreesLeaves(religious, religiousArr);
+	return leafArr.filter(function(leaf) {
+		return leaf.parentId != 0;
+	})
+}
+/**
+ * 获取选中的院系
+ * @param major 院系数组
+ * @param majorArr 选中的ID链数组
+ * @returns
+ */
+function _getSelectedMajor(major, majorArr) {
+	leafArr = _getSubTreesLeaves(major, majorArr);
+	return leafArr.filter(function(leaf) {
+		return leaf.parentId != 0;
+	})
+}
+/**
+ * 获取选中的通道
+ * @param major 通道数组
+ * @param majorArr 选中的ID链数组
+ * @returns
+ */
+function _getSelectedEntry(major, majorArr) {
+	leafArr = _getSubTreesLeaves(major, majorArr);
+	return leafArr.filter(function(leaf) {
+		return leaf.parentId != 0;
+	})
+}
+/**
+ * 获取选中的人员电话
+ * @param major 菜单数组
+ * @param majorArr 选中的ID链数组
+ * @returns
+ */
+function _getSelectedPhone(major, majorArr) {
+	return leafArr = _getSubTreesLeavesByPhone(major, majorArr);
+	// return leafArr.filter(function(leaf){
+	//   return  leaf.parentId  != 0;
+	// })
+}
+/**
+ * 获取选中的身份证地址
+ * @param address 地址数组
+ * @param addressArr 选中的ID链数组
+ * @returns
+ */
+function _getSelectedIdAddress(address, addressArr) {
+	return leafArr = _getSubTreesLeavesByCode(address, addressArr);
+}
+/**
+ * 获取满足ID链条件的子树的树叶节点
+ * @param treeArr 树数组
+ * @param idChainArr ID链数组,例如[[76],[137],[155, 62]]
+ * @returns
+ */
+function _getSubTreesLeaves(treeArr, idChainArr) {
+	if(!treeArr || !idChainArr) return [];
+	var len = treeArr.length;
+	var len2 = idChainArr.length;
+	var subTreeArr = [];
+	outer: for(h = 0; h < len2; h++) {
+		var idChain = idChainArr[h];
+		//console.log("idChain:"+idChain);
+		inner: for(j = 0; j < len; j++) {
+			//console.log(treeArr[j].name);
+			var idChainCopy = idChain.concat([]); //副本
+			var subTree = _getTreeNode(treeArr[j], idChainCopy);
+			if(subTree) {
+				subTreeArr.push(subTree);
+				continue outer;
+			}
+		}
+	}
+	var leafArr = [];
+	for(k = 0; k < subTreeArr.length; k++) {
+		var arr = _getTreeLeaves(subTreeArr[k]);
+		leafArr = leafArr.concat(arr);
+	}
+	return leafArr;
+}
+
+/**
+ * 根据ID链获取树的某级节点
+ * @param tree 树
+ * @param idChain ID链数组,例如[137, 5, 38]
+ * @returns 节点
+ */
+function _getTreeNode(tree, idChain) {
+	if(!tree || !idChain || idChain.length == 0) return;
+	if(tree.id == idChain[0]) {
+		if(idChain.length == 1) {
+			return tree;
+		} else {
+			if(tree.children && tree.children.length > 0) {
+				var len = tree.children.length;
+				idChain.shift();
+				for(i = 0; i < len; i++) {
+					var node = _getTreeNode(tree.children[i], idChain);
+					if(node) {
+						//callback(node);
+						return node;
+					}
+				}
+			}
+			return;
+		}
+	} else {
+		//callback();
+		return;
+	}
+
+}
+/**
+ * 根据phone链获取树的某级节点
+ * @param treeArr 树
+ * @param idChainArr ID链数组,例如[137, 5, 38]
+ * @returns 节点
+ */
+function _getSubTreesLeavesByPhone(treeArr, idChainArr) {
+	if(!treeArr || !idChainArr) return [];
+	var len = treeArr.length;
+	var len2 = idChainArr.length;
+	var subTreeArr = [];
+	outer: for(h = 0; h < len2; h++) {
+		var idChain = idChainArr[h];
+		//console.log("idChain:"+idChain);
+		inner: for(j = 0; j < len; j++) {
+			//console.log(treeArr[j].name);
+			var idChainCopy = idChain.concat([]); //副本
+			var subTree = _getTreeNodeByPhone(treeArr[j], idChainCopy);
+			if(subTree) {
+				subTreeArr.push(subTree);
+				continue outer;
+			}
+		}
+	}
+	var leafArr = [];
+	for(k = 0; k < subTreeArr.length; k++) {
+		var arr = _getTreeLeaves(subTreeArr[k]);
+		leafArr = leafArr.concat(arr);
+	}
+	return leafArr;
+}
+/**
+ * 根据phone值链获取某级节点
+ * @param tree 树
+ * @param idChain ID链数组,例如[137, 5, 38]
+ * @returns 节点
+ */
+function _getTreeNodeByPhone(tree, idChain) {
+	if(!tree || !idChain || idChain.length == 0) return;
+	if(tree.phone == idChain[0]) {
+		if(idChain.length == 1) {
+			return tree;
+		} else {
+			if(tree.children && tree.children.length > 0) {
+				var len = tree.children.length;
+				idChain.shift();
+				for(i = 0; i < len; i++) {
+					var node = _getTreeNodeByPhone(tree.children[i], idChain);
+					if(node) {
+						//callback(node);
+						return node;
+					}
+				}
+			}
+			return;
+		}
+	} else {
+		//callback();
+		return;
+	}
+
+}
+/**
+ * 获取满足code链条件的子树的树叶节点
+ * @param treeArr 树数组
+ * @param idChainArr ID链数组,例如[[76],[137],[155, 62]]
+ * @returns
+ */
+function _getSubTreesLeavesByCode(treeArr, idChainArr) {
+	if(!treeArr || !idChainArr) return [];
+	var len = treeArr.length;
+	var len2 = idChainArr.length;
+	var subTreeArr = [];
+	outer: for(h = 0; h < len2; h++) {
+		var idChain = idChainArr[h];
+		//console.log("idChain:"+idChain);
+		inner: for(j = 0; j < len; j++) {
+			//console.log(treeArr[j].name);
+			var idChainCopy = idChain.concat([]); //副本
+			var subTree = _getTreeNodeByCode(treeArr[j], idChainCopy);
+			if(subTree) {
+				subTreeArr.push(subTree);
+				continue outer;
+			}
+		}
+	}
+	var leafArr = [];
+	for(k = 0; k < subTreeArr.length; k++) {
+		var arr = _getTreeLeaves(subTreeArr[k]);
+		leafArr = leafArr.concat(arr);
+	}
+	return leafArr;
+}
+/**
+ * 根据code值链获取某级节点
+ * @param tree 树
+ * @param idChain ID链数组,例如[137, 5, 38]
+ * @returns 节点
+ */
+function _getTreeNodeByCode(tree, idChain) {
+	if(!tree || !idChain || idChain.length == 0) return;
+	if(tree.code == idChain[0]) {
+		if(idChain.length == 1) {
+			return tree;
+		} else {
+			if(tree.children && tree.children.length > 0) {
+				var len = tree.children.length;
+				idChain.shift();
+				for(i = 0; i < len; i++) {
+					var node = _getTreeNodeByCode(tree.children[i], idChain);
+					if(node) {
+						//callback(node);
+						return node;
+					}
+				}
+			}
+			return;
+		}
+	} else {
+		//callback();
+		return;
+	}
+
+}
+/**
+ * 获取树的叶子节点
+ * @param tree 树
+ * @returns 叶子节点数组
+ */
+function _getTreeLeaves(tree) {
+	var arr = [];
+	if(!tree) return arr;
+	if(tree.children && tree.children.length > 0) {
+		tree.children.forEach(function(child) {
+			var arr2 = _getTreeLeaves(child);
+			arr = arr.concat(arr2);
+		});
+	} else {
+		arr.push(tree);
+	}
+	return arr;
+}
+
+(function($) {
+	//得到$.ajax的对象
+	$.ajaxSetup({
+		headers: {
+			"X-Requested-With": "XMLHttpRequest"
+		}
+	});
+	var _ajax = $.ajax;
+	$.ajax = function(options) {
+		var url = options.url || '';
+		var enableLoading = options.enableLoading;
+		var loadingText = options.loadingText || '';
+		var data = options.data || {};
+		var type = options.type;
+		var method = options.type || options.method || 'GET';
+		var timeout = options.timeout || 20000;
+		if(options.headers) {
+			if(options.headers['Content-Type'] != 'application/json') {
+				if("POST" != method.toUpperCase() && "GET" != method.toUpperCase()) {
+					data._method = method;
+					type = "POST";
+				}
+			}
+		} else {
+			if("POST" != method.toUpperCase() && "GET" != method.toUpperCase()) {
+				data._method = method;
+				type = "POST";
+			}
+		}
+
+		var beforeSendCallback = options.beforeSend;
+		var errorCallback = options.error;
+		var successCallback = options.success;
+		var completeCallback = options.complete;
+		//扩展原生的$.ajax方法，返回最新的参数
+		var _options = $.extend(options, {
+			url: url,
+			dataType: options.dataType || 'json',
+			data: data,
+			type: type,
+			timeout: timeout,
+			crossDomain: true,
+			xhrFields: {
+				withCredentials: true
+			},
+			beforeSend: (xhr) => {
+				if(enableLoading) {
+					_showLoading(loadingText);
+				}
+				if(typeof beforeSendCallback === 'function') {
+					beforeSendCallback(xhr);
+				}
+			},
+			error: (xhr, error) => {
+				_hideLoading();
+				if(xhr.status == "403") {
+					_showAccessDenyMsg();
+					return;
+				}else if(xhr.status == "401") {
+					_showUnauthorizedMsg();
+					return;
+				}else if(xhr.status == "502") {
+					_showErrMsg('网关超时，请稍后重试')
+					return;
+				}
+				if(xhr.statusText == 'timeout') {
+					if("GET" != method.toUpperCase()) {
+						_showErrMsg('“数据处理超时，请稍后查看结果（请勿重复提交）');
+					}
+
+				}
+				if(typeof errorCallback === 'function') {
+					errorCallback(xhr, error);
+				} else {
+					if("GET" == method.toUpperCase()) {
+						if(xhr.status == 0) {
+							_showErrMsg('数据加载失败，请稍后重试')
+						} else {
+							_showErrMsg(`状态码${xhr.status}`, 1);
+						}
+					} else {
+						if(xhr.status == 0) {
+							_showErrMsg('数据处理超时，请稍后查看结果（请勿重复提交）')
+						} else {
+							_showErrMsg(`状态码${xhr.status}`);
+						}
+					}
+				}
+			},
+			success: (data) => {
+				//console.info(data);
+				if(typeof successCallback === 'function') {
+					successCallback(data);
+				} else {
+					if("GET" == method.toUpperCase()) {
+						_showInfoMsg(`获取数据成功`);
+					} else {
+						_showInfoMsg(`操作成功`);
+					}
+				}
+			},
+			complete: (xhr) => {
+				if(enableLoading) {
+					_hideLoading();
+				}
+				if(xhr.status == 200) {
+					// console.info(url, type, xhr.status, xhr.statusText);
+				} else {
+					//console.error(url, type, xhr.status, xhr.statusText);
+				}
+				if(typeof completeCallback === 'function') {
+					completeCallback(xhr);
+				}
+			}
+		});
+		//将最新的参数传回ajax对象
+		_ajax(_options);
+	};
+
+	//  $.ajax({url:'rest/campuses.json?_lazy=false', success:function(data){
+	//    console.info(data.data);
+	//    var nodes = [[76],[137]];
+	//    var result = _getSelectedRooms(data.data, nodes);
+	//    var result2 = _getSelectedRooms(data.data, nodes);
+	//    console.info(result);
+	//    console.info(result2);
+	//  }});
+})(jQuery);
+//关闭弹框方法
+function _closeModal() {
+	var index = parent.layer.getFrameIndex(window.name);
+	parent.layer.close(index);
+}
+// 取url参数值，name为需要取得参数名
+function _getQueryString(name) {
+	var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+	var r = window.location.search.substr(1).match(reg);
+	if(r != null) return unescape(r[2]);
+	return null;
+}
+//身份证地址回显
+function _city(city_label, province, city, area) {
+	if(city_label == null || city_label == "" || city_label == "undefined") {
+		return "";
+	}
+	var province_value = city_label.filter(function(x) {
+		return x.code == province;
+	})
+	if(province_value.length == 0) {
+		return "";
+	}
+	var children = province_value[0].children;
+	if(children == "" || children == "undefined" || children == null) {
+		return province_value[0].name;
+	}
+	var city_value = province_value[0].children.filter(function(x) {
+		return x.code == city;
+	})
+	if(city_value.length == 0) {
+		return province_value[0].name;
+	}
+	children = city_value[0].children;
+	if(children == "" || children == "undefined" || children == null) {
+		return province_value[0].name + "-" + city_value[0].name;
+	}
+	var area_value = city_value[0].children.filter(function(x) {
+		return x.code == area;
+	})
+	if(area_value.length == 0) {
+		return province_value[0].name + "-" + city_value[0].name;
+	}
+	return province_value[0].name + "-" + city_value[0].name + "-" + area_value[0].name;
+}
+//微信成功提示
+function successShow(message) {
+	var dom = document.createElement("div");
+	var dom2 = document.createElement("div");
+	dom.setAttribute("id", "successBox");
+	dom2.setAttribute("id", "successBox1");
+	dom2.innerHTML = message;
+	dom.appendChild(dom2)
+	document.body.appendChild(dom);
+	setTimeout(function() {
+			$("#successBox").fadeOut("slow")
+		},
+		1000);
+	setTimeout(function() {
+			$("#successBox").remove()
+		},
+		3000);
+}
+// 微信错误提示
+function errorShow(message) {
+	var dom = document.createElement("div");
+	var dom1 = document.createElement("div");
+	dom.setAttribute("id", "errorBox");
+	dom1.setAttribute("id", "errorBox1");
+	dom1.innerHTML = message;
+	dom.appendChild(dom1)
+	document.body.appendChild(dom);
+	setTimeout(function() {
+			$("#errorBox").fadeOut("slow")
+		},
+		2000);
+	setTimeout(function() {
+			$("#errorBox").remove()
+		},
+		6000);
+}
+
+// 微信定义全局focus事件
+Vue.directive('focus', {
+	inserted: function(el) {
+		el.focus()
+	}
+})
+
+axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+axios.interceptors.response.use(response => {
+	return response;
+}, error => {
+	if(error.response.status == "403") {
+		_showAccessDenyMsg();
+		return;
+	}
+	if(error.response.status == "401") {
+		_showUnauthorizedMsg();
+		return;
+	}
+});
+
+//判断是否客户端环境
+function _isClient() {
+	return window.closeApp != undefined;
+}
+
+function seeBig(obj) { //图片查看
+	layer.open({
+		type: 1,
+		title: false,
+		area: ['1000px', '700px'],
+		shade: 0.8,
+		closeBtn: 0,
+		shadeClose: true,
+		skin: 'imgBox', //引入新的样式名称
+		content: obj,
+	});
+}
+
+function seeUser(obj1, obj2, obj3, obj4) { //查看门禁图片 1=>身份证  2=>头像  3=>=>身份证id  4=>头像id
+	let html = '';
+	html = `<div id="doorBox">
+  			<div class = "lastBox">
+  				<div class="img_top_box">
+	  				<div class = "passimg passImg1">
+						<div>`
+	if(obj4) {
+		html += `<img alt = "头像" width="350px" height = "431px" src="${obj2}">`
+	} else {
+		html += `<span>无</span>`
+	}
+
+	html += `</div>					
+		  				<span>抓拍人像</span>	
+  					</div>	
+	  				<div class = "passimg passImg2">
+		  				<div>`
+	if(obj3) {
+		html += `<img alt = "头像" width="116px" height = "142px" src="${obj1}">`
+	} else {
+		html += `<span>无</span>`
+	}
+	html += `</div>	
+		  				<span>身份证人像</span>
+		  			</div>
+		  			<div style = "clear: both;"></div>
+		  		</div>
+  				<div class = "img_foot_close">
+  					<span onclick = "closeAll()">关闭</span>
+  				</div>
+  		</div>`;
+	layer.open({
+		type: 1,
+		title: false,
+		area: ['565px', '585px'],
+		shade: 0.8,
+		closeBtn: 0,
+		shadeClose: true,
+		//  skin: 'imgBox', //引入新的样式名称
+		content: html,
+	});
+}
+
+function closeAll() {
+	layer.closeAll()
+}
+var tableData = []; //统计打印页面获取数据
+function caseDetails(obj, type, sort) { //详情界面，obj=>单据号，id等。type=>类型,sort=>为统计打印页面区分是那一个
+	let url = ""
+	if(type == "case") {
+		url = 'case_information_view.xhtml#' + obj;
+	} else if(type == "lost") {
+		url = 'lost_and_fund_particulars.xhtml#' + obj;
+	} else if(type == "duty") {
+		url = 'duty/duty_analysis_detail.xhtml#' + obj;
+	} else if(type == "print") {
+		tableData = obj
+		url = 'duty/duty_analysis_print.xhtml#' + sort;
+	}
+	layer.open({
+		type: 2,
+		title: false,
+		area: ['745px', '710px'],
+		fixed: false, //不固定
+		maxmin: true,
+		shadeClose: true,
+		content: url
+	});
+}
+
+function satisfyUser(obj) { //自动授权查看满足条件人员列表
+	let url = 'fac/authorized_personnel.xhtml#' + obj;
+	layer.open({
+		type: 2,
+		title: false,
+		area: ['1000px', '710px'],
+		fixed: false, //不固定
+		maxmin: true,
+		content: url,
+		shadeClose: false,
+	});
+}
+
+function detailsSee(obj,obj1) { //案件详情查看
+	layer.open({
+		type: 1,
+		title: obj1,
+		//		  title: false,
+		area: ['600px', '480px'],
+		shade: 0.5,
+		shadeClose: true,
+		skin: 'detailsBox', //引入新的样式名称
+		content: obj,
+		success: function(layero, index) {
+			$(".layui-layer-title").after('<i class = "icon--outline-close-24px closeBtnLayer" onclick = "parent.layer.closeAll()"></i>')
+		}
+	});
+}
+//layui-layer-title
+//将base64转换为blob
+function dataURLtoBlob(dataurl) {
+	var arr = dataurl.split(','),
+		mime = arr[0].match(/:(.*?);/)[1],
+		bstr = atob(arr[1]),
+		n = bstr.length,
+		u8arr = new Uint8Array(n);
+	while(n--) {
+		u8arr[n] = bstr.charCodeAt(n);
+	}
+	return new Blob([u8arr], {
+		type: mime
+	});
+}
+//对图片旋转处理 added by lzk
+function rotateImg(img, direction, canvas) {
+	//alert(img);
+	//最小与最大旋转方向，图片旋转4次后回到原方向  
+	var min_step = 0;
+	var max_step = 3;
+	//var img = document.getElementById(pid);  
+	if(img == null) return;
+	//img的高度和宽度不能在img元素隐藏后获取，否则会出错  
+	var height = img.height;
+	var width = img.width;
+	//var step = img.getAttribute('step');  
+	var step = 2;
+	if(step == null) {
+		step = min_step;
+	}
+	if(direction == 'right') {
+		step++;
+		//旋转到原位置，即超过最大值  
+		step > max_step && (step = min_step);
+	} else {
+		step--;
+		step < min_step && (step = max_step);
+	}
+	//img.setAttribute('step', step);  
+	/*var canvas = document.getElementById('pic_' + pid);  
+	if (canvas == null) {  
+	    img.style.display = 'none';  
+	    canvas = document.createElement('canvas');  
+	    canvas.setAttribute('id', 'pic_' + pid);  
+	    img.parentNode.appendChild(canvas);  
+	}  */
+	//旋转角度以弧度值为参数  
+	var degree = step * 90 * Math.PI / 180;
+	var ctx = canvas.getContext('2d');
+	switch(step) {
+		case 0:
+			canvas.width = width;
+			canvas.height = height;
+			ctx.drawImage(img, 0, 0);
+			break;
+		case 1:
+			canvas.width = height;
+			canvas.height = width;
+			ctx.rotate(degree);
+			ctx.drawImage(img, 0, -height);
+			break;
+		case 2:
+			canvas.width = width;
+			canvas.height = height;
+			ctx.rotate(degree);
+			ctx.drawImage(img, -width, -height);
+			break;
+		case 3:
+			canvas.width = height;
+			canvas.height = width;
+			ctx.rotate(degree);
+			ctx.drawImage(img, -width, 0);
+			break;
+	}
+}
+
+function disabledShow() { //打开遮罩
+	$(".disabledBtnBox").show();
+}
+
+function disabledHide() { //关闭遮罩
+	$(".disabledBtnBox").hide();
+}
+
+function isEmpty(obj, type) {
+	let iskong = $(".el-table__empty-text")
+	iskong.text('');
+	let imgSrc = ctxPath + "images/btnBox/unbtable.png"
+	if(type) {
+		let html = `<div>
+						<div class="ec-emptImg"><img src="${imgSrc}" height="40px" width="40px" alt="图标"></div>
+						<div class="ec-emptText"><span>${obj}</span></div>
+					</div>`;
+		iskong.html(html)
+	}
+
+}
+
+//对象数组去重
+function uniqObjInArray(objarray) {
+	let len = objarray.length;
+	let tempJson = {
+
+	};
+	let res = [];
+	for(let i = 0; i < len; i++) {
+		//取出每一个对象
+		tempJson[JSON.stringify(objarray[i])] = true;
+	}
+	let keyItems = Object.keys(tempJson);
+	for(let j = 0; j < keyItems.length; j++) {
+		res.push(JSON.parse(keyItems[j]));
+	}
+	return res;
+}
+
+function isDigit(s) { //纯数字
+	var patrn = /^[0-9]{1,20}$/;
+	if(!patrn.exec(s)) return false
+	return true
+}
+
+function noChina(s) {
+	return /[\u4E00-\u9FA5]/g.test(s)
+}
+
+function isEnglish(s) { //纯英文
+	return /^[a-zA-Z]+$/.test(s);
+}
+
+function _errorHide() {
+	$("#errorTextBox").remove();
+}
+
+function _hideBigimg() {
+	$("#ec-big-img").remove();
+}
+
+function _showError(errorText) { //抽屉前端提示
+	errorText = errorText || '出错了';
+	$("#errorTextBox").remove();
+	$("#ec-body-box").append(`<p class="ec-error" id="errorTextBox">
+		<span>${errorText}</span>
+		<span class="el-icon-error errorBtn" onclick="_errorHide()"></span>
+	</p>`);
+	setTimeout(() => {
+		$("#errorTextBox").remove();
+	}, 10000)
+}
+
+function _showError1(errorText) { //抽屉前端提示
+	errorText = errorText || '出错了';
+	$("#errorTextBox").remove();
+	$(".el-tabs").append(`<p class="ec-error" id="errorTextBox">
+		<span>${errorText}</span>
+		<span class="el-icon-error errorBtn" onclick="_errorHide()"></span>
+	</p>`);
+	setTimeout(() => {
+		$("#errorTextBox").remove();
+	}, 10000)
+}
+
+function _showError2(errorText) { //抽屉前端提示
+	errorText = errorText || '出错了';
+	$("#errorTextBox").remove();
+	$(".submitBox").append(`<p class="ec-error" id="errorTextBox">
+		<span>${errorText}</span>
+		<span class="el-icon-error errorBtn" onclick="_errorHide()"></span>
+	</p>`);
+	setTimeout(() => {
+		$("#errorTextBox").remove();
+	}, 2000)
+}
+
+function _showError3(errorText) { //抽屉前端提示
+	errorText = errorText || '出错了';
+	$("#errorTextBox").remove();
+	$(".tanBox").append(`<p class="ec-error" id="errorTextBox">
+		<span>${errorText}</span>
+		<span class="el-icon-error errorBtn" onclick="_errorHide()"></span>
+	</p>`);
+	setTimeout(() => {
+		$("#errorTextBox").remove();
+	}, 2000)
+}
+function _showError4(errorText) { //抽屉前端提示
+	errorText = errorText || '出错了';
+	$("#errorTextBox").remove();
+	$(".tanBox1").append(`<p class="ec-error" id="errorTextBox">
+		<span>${errorText}</span>
+		<span class="el-icon-error errorBtn" onclick="_errorHide()"></span>
+	</p>`);
+	setTimeout(() => {
+		$("#errorTextBox").remove();
+	}, 2000)
+}
+function _showError5(errorText) { //抽屉前端提示
+	errorText = errorText || '出错了';
+	$("#errorTextBox").remove();
+	$(".tanBox2").append(`<p class="ec-error" id="errorTextBox">
+		<span>${errorText}</span>
+		<span class="el-icon-error errorBtn" onclick="_errorHide()"></span>
+	</p>`);
+	setTimeout(() => {
+		$("#errorTextBox").remove();
+	}, 2000)
+}
+function _showError6(errorText) { //抽屉前端提示
+	errorText = errorText || '出错了';
+	$("#errorTextBox").remove();
+	$(".kanbanTan").append(`<p class="ec-error" id="errorTextBox">
+		<span>${errorText}</span>
+		<span class="el-icon-error errorBtn" onclick="_errorHide()"></span>
+	</p>`);
+	setTimeout(() => {
+		$("#errorTextBox").remove();
+	}, 2000)
+}
+function _showBigimg(src) { //前端查看大图
+	if(src && src != '') {
+		$("#ec-big-img").remove();
+		let isAppend = parent.$("#findStudent");
+		parent.$("#findStudent").append(`<div class='bigImg' v-show='imgshow' id="ec-big-img">
+            <div>
+                <img src="${src}">
+                <span class='el-icon-close' onclick='_hideBigimg()'></span>
+            </div>
+       </div>`);
+	}
+
+}
+/**
+ * 判断年份是否为润年
+ *
+ * @param {Number} year
+ */
+function isLeapYear(year) {
+	return(year % 400 == 0) || (year % 4 == 0 && year % 100 != 0);
+}
+/* 获取某一年份的某一月份的天数*/
+function getMonthDays(year, month) {
+	return [31, null, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month] || (isLeapYear(year) ? 29 : 28);
+}
+/**
+ * 获取某年的某天是第几周
+ * @param {Number} y
+ * @param {Number} m
+ * @param {Number} d
+ * @returns {Number}
+ */
+function getWeekNumber(y, m, d) {
+	var now = new Date(y, m - 1, d),
+		year = now.getFullYear(),
+		month = now.getMonth(),
+		days = now.getDate();
+	//那一天是那一年中的第多少天
+	for(var i = 0; i < month; i++) {
+		days += getMonthDays(year, i);
+	}
+
+	//那一年第一天是星期几
+	var yearFirstDay = new Date(year, 0, 1).getDay() || 7;
+
+	var week = null;
+	if(yearFirstDay == 1) {
+		week = Math.ceil(days / yearFirstDay);
+	} else {
+		days -= (7 - yearFirstDay + 1);
+		week = Math.ceil(days / 7) + 1;
+	}
+
+	return week;
+}
+
+function ec_errorShow(obj) {
+
+}
+
+function setArry(obj1, obj2, obj3, obj4) { //微信端获取个人设置使用
+	let allName1 = [];
+	let allName2 = [];
+	let allId1 = [];
+	let allId2 = [];
+	let bigArry = [];
+	if(obj1) {
+		allName1 = (obj1).split(',');
+	}
+	if(obj2) {
+		allName2 = (obj2).split(',');
+	}
+	if(obj3) {
+		allId1 = (obj3).split(',');
+	}
+	if(obj4) {
+		allId2 = (obj4).split(',');
+	}
+	for(let i in allName1) {
+		bigArry.push({
+			name: allName1[i],
+			isStyle: false,
+			id: allId1[i],
+		})
+	}
+	for(let i in allName2) {
+		bigArry.push({
+			name: allName2[i],
+			isStyle: false,
+			id: allId2[i],
+		})
+	}
+	return bigArry;
+}
+var goSetHead = ''; //人脸认证设置头像跳转路径
+function calcMD5(file, callback) {
+	var blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice,
+		chunkSize = 10 * 1024 * 1024,
+		chunks = Math.ceil(file.size / chunkSize),
+		currentChunk = 0,
+		spark = new SparkMD5.ArrayBuffer(),
+		fileReader = new FileReader();
+
+	fileReader.onload = function(e) {
+		console.log('read chunk nr', currentChunk + 1, 'of', chunks);
+		spark.append(e.target.result); // Append array buffer
+		currentChunk++;
+
+		if(currentChunk < chunks) {
+			loadNext();
+		} else {
+			callback(spark.end());
+		}
+	};
+
+	fileReader.onerror = function() {
+		console.warn('oops, something went wrong.');
+		callback(null);
+	};
+
+	function loadNext() {
+		var start = currentChunk * chunkSize,
+			end = ((start + chunkSize) >= file.size) ? file.size : start + chunkSize;
+
+		fileReader.readAsArrayBuffer(blobSlice.call(file, start, end));
+	}
+	loadNext();
+}
+function getWeek(dateString){
+    var date;
+    if(isNull(dateString)){
+        date = new Date();
+    }else{
+        var dateArray = dateString.split("-");
+        date = new Date(dateArray[0], parseInt(dateArray[1] - 1), dateArray[2]);
+    }
+    return "星期" + "日一二三四五六".charAt(date.getDay());
+};
+function isNull(object){ 
+    if(object == null || typeof object == "undefined"){ 
+        return true; 
+    } 
+    return false; 
+};

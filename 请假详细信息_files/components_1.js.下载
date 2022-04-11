@@ -1,0 +1,537 @@
+Vue.component('ec-btn-img', { //图标文字按钮组 
+	data() {
+		return {
+			img_head: ctxPath + 'images/btnBox/',
+		}
+	},
+	methods: {
+		select(obj) {
+			if('pagebtn') {
+				this.$emit('pagebtn', obj);
+			}
+		},
+	},
+	props: {
+		table: {
+			btnList: [{
+				flag: "",
+				disabled: "",
+				img: "",
+				name: "",
+				unImg: "",
+				title: ""
+			}]
+		}
+	},
+
+	template: `	<div class = "ec_btnBox_img">
+                    <button v-for = "item in table.btnList" class = "ec_btn ec_new_btn" @click = "select(item.flag)" :disabled='item.disabled' :title='item.title'>
+                        <img :src = "img_head+item.img"  width="12px" height = "12px" v-if="item.img&&!item.disabled"/>
+                        <img :src = "img_head+item.unImg"  width="12px" height = "12px" v-if="item.unImg&&item.disabled"/>
+						<span :class='item.flag=="del"&&!item.disabled?"colorRed":""'>{{item.name}}</span>
+                    </button>
+                </div>`
+})
+Vue.component('ec-btn-text', { //文本按钮组 
+	methods: {
+		select(obj) {
+			if('pagebtn') {
+				this.$emit('pagebtn', obj);
+			}
+		},
+	},
+	props: {
+		table: {
+			btnList: [{
+				flag: "",
+				disabled: "",
+				name: "",
+				title: ""
+			}]
+		}
+	},
+
+	template: `	<div class = "ec_btnBox_text">
+                    <button v-for = "item in table.btnList" class = "ec_btn ec_new_btn" @click = "select(item.flag)" :disabled='item.disabled' :title='item.title'>
+                        <span>[{{item.name}}]</span>
+                    </button>
+                </div>`
+})
+Vue.component('ec-btn-border', { //按钮组包裹
+	template: `	<div class = "ec_btn_border">
+                   	<slot></slot>
+                </div>`
+})
+Vue.component('ec-time-axis', { //时间轴包裹
+	data() {
+		return {
+			head_img: ctxPath + 'images/btnBox/node.png',
+			listLength: 0,
+			listData: [],
+		}
+	},
+	template: `	<div class = "ec_time_axis">
+                   <ul>
+                   	<slot></slot>
+                   </ul>
+                </div>`
+})
+
+Vue.component('ec-text-box', { //时间轴1
+	data() {
+		return {
+			listLength: 0,
+		}
+	},
+	props: ['iskey', 'name', 'number', 'btndata'],
+	created() {
+		this.listLength = this.number - 1;
+	},
+	template: `
+       		<li class = "time_axis_box" >
+       			<div class= "ec_left_box">
+       				<div class = "ec_number"><span>{{iskey+1}}</span></div>
+       				<div v-if = "iskey!=listLength" class="tiemLine"></div>
+       			</div>
+       			<div class = "ec_right_box">
+       				<div class = "ec_head_box">
+       					<div>{{name}}</div>
+       					<div>
+       						<span @click="item.method(key)" v-for = "(item,key) in btndata">[{{item.name}}]</span>
+       					</div>
+       				</div>
+       				<div class = "ec-content-box">
+       					<slot></slot>
+       				</div>
+       			</div>
+       		</li>
+    `,
+})
+Vue.component('ec-time-box', { //时间轴2
+	props: ['state', 'name', 'tipname', 'iskey', 'tag', 'tagname'],
+	created() {},
+	template: `
+       		<li class = "time_axis_box" >
+       			<div class= "ec_left_box_l">
+       				<span :class = "(state==0)?'ec_number_dian_l':(state==1)?'ec_number_dian_':'ec_number_dian'"></span>
+       				<span class="ec_tiemLine" :class = "(state==0)?'ec_tiemLine_l':''"></span>
+       			</div>
+       			<div class = "ec_right_box_l">
+       				<div :class = "(state==0)?'ec_head_box_l':(state==1)?'ec_head_box_un':'ec_head_box_'">
+						   <div>{{name}}
+                           <span v-if = "tipname" class = "iserror_text">({{tipname}})</span>
+                           <span v-if = "tag">
+                            <span v-if = "tag=='green'&&tagname!=''" class = "isbtn_text_green isbtn_text_">{{tagname}}</span>
+                            <span v-else-if = "tag=='red'&&tagname!=''" class = "isbtn_text_red isbtn_text_">{{tagname}}</span>
+                            <span v-else-if = "tag=='blue'&&tagname!=''" class = "isbtn_text_blue isbtn_text_">{{tagname}}</span>
+                           </span>
+						   </div>
+       					<div>
+       						
+       					</div>
+       				</div>
+       				<div class = "ec-content-box">
+       					<slot></slot>
+       				</div>
+       			</div>
+       		</li>
+    `,
+})
+Vue.component('ec-list-details', { //LIST列表+详情
+	data() {
+		return {
+			leftWidth: {
+				width: '',
+			}
+		}
+	},
+	props: ['width'],
+	created() {
+		if(this.width) {
+			this.leftWidth.width = this.width + 'px';
+		} else {
+			this.leftWidth.width = '360px';
+		}
+	},
+	template: `
+   			<div :style = "leftWidth" class="ec_list_details">
+   				<slot></slot>
+   			</div>
+    `,
+})
+Vue.component('ec-pop-up', { //弹框
+	data() {
+		return {
+			boxWidth: {
+				width: '',
+				heigth: '',
+			}
+		}
+	},
+	props: ['name', 'width', 'height'],
+	created() {
+		if(this.width) {
+			this.boxWidth.width = this.width + 'px';
+		} else {
+			this.boxWidth.width = '480px';
+		}
+		if(this.height) {
+			this.boxWidth.height = this.height + 'px';
+		} else {
+			this.boxWidth.height = '190px';
+		}
+
+	},
+	methods: {
+		isclose() {
+			let popBox = this.$refs.popBox
+			popBox.classList.add('animate__animated', 'animate__fadeOutDownBig');
+			setTimeout(() => {
+				popBox.classList.remove('animate__animated', 'animate__fadeOutDownBig');
+			}, 1000)
+		},
+	},
+	mounted: function() {
+		let popBox = this.$refs.popBox
+		popBox.classList.add('animate__animated', 'animate__fadeInDownBig');
+		setTimeout(() => {
+			popBox.classList.remove('animate__animated', 'animate__fadeInDownBig');
+		}, 1000)
+	},
+	template: `
+               <div class="ec_pop_box">
+                    <div  ref = "popBox" class="ec_pop_box_b" :style = "boxWidth">
+                        <div class="pop_head_box">{{name}}</div>
+                        <slot></slot>
+                    </div>
+                </div>
+    `,
+})
+Vue.component('ec-file-box', { //点击上传
+	data() {
+		return {
+			imgUrl: ctxPath + 'rest/image.json',
+			fileList: [],
+		}
+	},
+	props: ['url', 'title', 'max'],
+	created() {
+		if(this.url) {
+			this.imgUrl = this.url + '?attachmentTableType = "process"';
+		} else {
+			this.imgUrl = mainServiceHome + '/rest/attachments.json?attachmentTableType = "process"'
+		}
+
+	},
+	methods: {
+		handleRemove(file, fileList) {
+			this.$emit('isremove', file, fileList);
+		},
+		isSuccess(file, fileList) {
+			this.$emit('success', file);
+		},
+		isBefore(file) {
+			if(this.max) {
+				const isLt2M = file.size / 1024 / 1024 < this.max;
+				if(!isLt2M) {
+					_showErrMsg("上传附件不能超过" + this.max + "M");
+				}
+				return isLt2M;
+			}
+
+		}
+	},
+	mounted: function() {
+
+	},
+	template: `
+               <div class="ec_file_box_">
+                   <el-upload
+					  class="upload-demo"
+					  :action="imgUrl"
+					  :on-remove="handleRemove"
+					  :on-success = "isSuccess"
+					  :before-upload = 'isBefore'
+					  multiple
+					  :file-list="fileList">
+					  <div class = "file_text">
+					  	<div>点击上传</div>
+					  	<div slot="tip" class="el-upload__tip" v-if="title">{{title}}</div>
+					  </div>
+					</el-upload>
+                </div>
+    `,
+})
+Vue.component('ec-sort-box', { //信息分类
+	data() {
+		return {
+			isText: '',
+		}
+	},
+	props: ['title'],
+	created() {
+		if(this.title) {
+			this.isText = this.title;
+		} else {
+			this.isText = '表头信息';
+		}
+
+	},
+	template: `
+               <div class="ec_sort_box_">
+                   <div class="ec_sort_box_head">{{title}}</div>
+                   <div>
+                   		<slot></slot>
+                   </div>
+                </div>
+    `,
+})
+Vue.component('ec-tag', { //tag标签
+	data() {
+		return {
+			isText: '',
+		}
+	},
+	props: ['text', 'name', 'type'],
+	methods: {
+		delBtn(file, fileList) {
+			this.$emit('isremove');
+		},
+	},
+	created() {
+
+	},
+	template: `
+               <span class="ec_tag_box" :class= "(type == 'ash')?'ashback':''" :title = "(text.length>3)?text:''">
+               		<span v-if="text" class="ec_tag_fist">{{text}}</span>
+               		<span v-if="name">({{name}})</span>
+               		<span class="del_btn" @click="delBtn">×</span>
+               </span>
+    `,
+})
+Vue.component('ec-add-more', { //加载更多
+	data() {
+		return {
+			isText: '',
+		}
+	},
+	props: ['text'],
+	methods: {
+		addBtn(file, fileList) {
+			this.$emit('isadd');
+		},
+	},
+	created() {
+		if(this.text) {
+			this.isText = this.text;
+		} else {
+			this.isText = '加载更多...';
+		}
+	},
+	template: `
+               <div class="ec_add_moer" @click = "addBtn">{{isText}}</div>
+    `,
+})
+Vue.component('ec-radio-group', { //单选按钮组
+	template: `
+               <div class="ec_radio_group">
+               		<slot></slot>
+               </div>
+    `,
+})
+Vue.component('ec-drawer-last', { //新抽屉
+	data() {
+		return {
+			isShow: false,
+			boxWidth: '',
+		}
+	},
+	props: {
+		table: {
+			isOpen: false,
+			name: '',
+			uwidth: '',
+		}
+	},
+	methods: {
+		handleClose() {
+			this.$emit('close');
+		},
+	},
+	created() {
+		if(this.table.uwidth) {
+			this.boxWidth = this.table.uwidth + 'px';
+		} else {
+			this.boxWidth = '380px';
+		}
+	},
+	template: `<el-drawer id="drawerl_last"
+			  		:title="table.name"
+			  		:visible.sync="table.isOpen"
+			  		:with-header="false"
+			  		:before-close = 'handleClose'
+			  		:wrapperClosable = "false"
+			  			:size = boxWidth>
+                      <slot></slot>
+				</el-drawer>`
+})
+Vue.component('ec-tag-last', { //tag标签二
+	data() {
+		return {
+
+		}
+	},
+	props: ['text', 'width'],
+	methods: {
+		delBtn(file, fileList) {
+			this.$emit('isremove');
+		},
+	},
+	created() {
+
+	},
+	template: `
+               <span class="ec_tag_box_">
+               		<span v-if="text" class="ec_tag_fist" :title = "text">{{text}}
+               		<span class="del_btn_2" @click="delBtn">×</span>
+               		</span>
+               		
+               </span>
+    `,
+})
+Vue.component('ec-tag-next', { //tag标签三
+	data() {
+		return {
+
+		}
+	},
+	props: ['text'],
+	methods: {
+		delBtn(file, fileList) {
+			this.$emit('isremove');
+		},
+	},
+	created() {
+
+	},
+	template: `
+               <span class="ec_tag_box_2">
+               		<span v-if="text" class="ec_tag_fist" :title = "text">{{text}}</span>
+               		<span class="del_btn_2" @click="delBtn">×</span>
+               </span>
+    `,
+})
+Vue.component('ec-btn-single', { //单个按钮 
+	data() {
+		return {
+			img_head: ctxPath + 'images/btnBox/',
+			isdisable: false,
+
+		}
+	},
+	props: ['disabled', 'title', 'img', 'unimg', 'name'],
+	methods: {
+		isAdd(file, fileList) {
+			this.$emit('isclick');
+		},
+	},
+	watch: {
+		disabled(newName, oldName) {
+			this.isdisable = newName;
+		}
+	},
+	created() {
+		if(this.disabled != undefined) {
+			this.isdisable = this.disabled
+		}
+	},
+	template: `	<span class = "ec_btnBox_single">
+                    <button class = "ec_btn ec_new_btn" :disabled='isdisable' :title='title' @click.stop = "isAdd">
+                        <img :src = "img_head+img"  width="12px" height = "12px" v-if="img&&!isdisable"/>
+                        <img :src = "img_head+unimg"  width="12px" height = "12px" v-if="unimg&&isdisable"/>
+                        <span>{{name}}</span>
+                    </button>
+                </span>`
+})
+Vue.component('ec-model-box', { //弹框按钮盒子
+	template: `	<div class = "ec_model_box">
+                    <slot></slot>
+                </div>`
+})
+Vue.component('ec-big-img', { //大图修改
+	data() {
+		return {
+			clipImg: "",
+			showImg: false,
+		}
+	},
+	props: ['src', 'show'],
+	methods: {
+		submitBox(file, fileList) {
+			let cas = $('#bigclipImg').cropper('getCroppedCanvas');
+			this.$emit('isok',cas);
+		},
+		closeBox() {
+			let box = document.getElementById('seeBigImg');
+			box.style="display: none"
+			this.$emit('close');
+			//			this.showImg = false
+		},
+		imgRest() {
+			$('#bigclipImg').cropper('reset');
+		},
+		goleft() {
+			$('#bigclipImg').cropper('rotate', -90);
+		},
+		goright() {
+			$('#bigclipImg').cropper('rotate', 90);
+		},
+	},
+	watch: {
+		show(newName, oldName) {
+			if(newName) {
+				setTimeout(() => {
+					$('#bigclipImg').cropper({
+						aspectRatio: 3 / 4,
+						preview: '.showArea',
+					});
+				}, 1)
+				setTimeout(()=>{
+					let box = document.getElementById('seeBigImg');
+					box.style="display: block"
+				},5)
+			}
+		}
+	},
+	mounted() {
+
+	},
+	created() {
+
+	},
+	template: `<div class="imgbigbox" v-if="show">
+	            <div class="imgminbox" id="seeBigImg">
+	                <h1>旋转图片<span class="el-icon-close" @click='closeBox' style="cursor: pointer;"></span></h1>
+	                <div class="imgAreaBox">
+	                    <div class="imgArea">
+	                        <img id='bigclipImg' :src="src">
+	                    </div>
+	                    <div class="showArea" style="overflow: hidden;"></div>
+	                </div>
+	                <div class="imgBtnBox">
+	                    <span @click='goleft'><span class="el-icon-refresh-left"
+	                            style="margin-right: 4px;color: #000;"></span>向左旋转</span>
+	                    <span @click='goright'><span class="el-icon-refresh-right"
+	                            style="margin-right: 4px;color: #000;"></span>向右旋转</span>
+	                    <span @click='imgRest' style="color: #FF4A4A;"><span class="el-icon-refresh"
+	                            style="margin-right: 4px;"></span>重置</span>
+	                </div>
+	                <div class="imgBtnBox1">
+	                    <button type="button" class="el-button el-button--default el-quxiao el-button--small"
+	                        @click="closeBox">取消</button>
+	                    <button type="button" class="el-button el-button--default el-button--small el-button--primary "
+	                        @click="submitBox">保存</button>
+	                </div>
+	            </div>
+	        </div>`
+})

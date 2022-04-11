@@ -1,0 +1,195 @@
+const dp = new DPlayer({ //播放器初始化
+	element: document.getElementById('dplayer'),
+	autoplay: true,
+	theme: '#FADFA3',
+	loop: false,
+	hotkey: false,
+	preload: 'auto',
+	video: {
+		pic: '', //第一帧图片
+		url: '', //视频地址
+		//		pic: ctxPath +'images/wechat/lostImg.png',
+		//      url: ctxPath +'images/wechat/VID_20191023_195245.mp4',
+	}
+});
+var application = new Vue({
+	el: "#application",
+	data: {
+		carNumber: "",
+		screen: "审批状态",
+		cleanStyle: false,
+		time: "提交时间",
+		listH: {
+			height: ""
+		},
+		btnList: [],
+		isActive: 'first',
+		imgData: [],
+		ctxPath: ctxPath + 'rest/image/',
+		textshow: true,
+		listArr: [],
+		pageSize: 999,
+		student_message: {},
+		noData: false,
+		imgUrl: mainServiceHome + '/rest/attachments/',
+		isDoc: "../../../images/wechat/word.png",
+		isExce: "../../../images/wechat/excel.png",
+		isPpt: "../../../images/wechat/PPT.png",
+		isOther: "../../../images/wechat/untype.png",
+		isVideo: "../../../images/wechat/video.png",
+		imgData: [],
+		applicationId: "",
+		bigShow: false,
+		appendixUrl: '',
+		form: {
+			approveStatus: '',
+			apply: '',
+			keywords: '',
+		},
+		btnType: true,
+		isHave: true,
+		haveBack: true,
+		backType: false,
+	},
+	methods: {
+		downFile(obj) {
+			window.location.href = obj
+		},
+		revoke(obj) { //撤销
+			let _this = this;
+			var btnArray = ['取消', '确定'];
+			mui.confirm('确定要撤销此申请吗?', ' ', btnArray, function(e) {
+				if(e.index == 1) {
+					$.ajax({
+						url: mainServiceHome + '/rest/application/approve.json',
+						type: 'POST',
+						data: {
+							applicationId: obj,
+							approval: 4
+						},
+						success: (data) => {
+							if(data.code == 0) {
+								successShow("操作成功");
+								closePage();
+							} else {
+								errorShow(data.msg);
+							}
+						},
+						error: (data) => {
+							errorShow('撤销失败');
+						},
+						complete: function() {}
+					});
+				} else {
+
+				}
+			})
+		},
+		bigHide() {
+			this.bigShow = false;
+			this.appendixUrl = '';
+		},
+		seeBig(obj, type) {
+			this.bigShow = true;
+			this.appendixUrl = obj;
+		},
+		seeVideo(obj) { //		obj为视频id  type为视频路劲地址
+			$("#videoBox").show();
+			dp.switchVideo({
+				pic: obj+'/first_frame.jpg',
+				url: obj,
+			});
+			setTimeout(() => {
+				dp.play();
+			}, 1000)
+		},
+		cleanNumber() {
+			this.form.keywords = '';
+		},
+		submitForm() {
+			this.common();
+		},
+		getUser(id) {
+			_ajax(mainServiceHome + `/rest/application/applier/${id}.json`, "get", {}, (data) => { //请求列表
+				if(data.code == 0) {
+					let _data = data.data;
+					this.student_message = _data;
+				} else {
+					errorShow(data.msg);
+				}
+			}, undefined, true)
+		},
+	},
+	mounted() {
+		$(document).on("click", ".item-content", function() {
+			let _style = $(this).next().attr("style");
+			$('.head_list').slideUp("slow");
+			$('.mui-icon').removeClass('mui-icon-arrowup')
+			$('.mui-icon').addClass('mui-icon-arrowdown')
+			if(_style == 'display: none;') {
+				$(this).next().slideDown("slow");
+				$(this).find('.mui-icon').removeClass('mui-icon-arrowdown')
+				$(this).find('.mui-icon').addClass('mui-icon-arrowup')
+			} else {
+				$(this).next().slideUp("slow");
+				$(this).find('.mui-icon').removeClass('mui-icon-arrowup')
+				$(this).find('.mui-icon').addClass('mui-icon-arrowdown')
+			}
+		});
+
+	},
+	created() {
+		_source = location.hash;
+		let num = _source.indexOf("#");
+		_source = _source.substr(num + 1);
+		let otherId = GetRequest();
+		otherId = otherId.applicationId;
+		if(otherId) {
+			this.getUser(otherId);
+		} else {
+			if(_source) {
+				this.getUser(_source);
+			} else {
+				this.isHave = false
+			}
+
+		}
+		//		this.getType();
+	}
+})
+
+function closePage() {
+	setTimeout(function() {
+		//安卓手机
+		document.addEventListener(
+			"WeixinJSBridgeReady",
+			function() {
+				WeixinJSBridge.call("closeWindow");
+			},
+			false
+		);
+		//ios手机
+		WeixinJSBridge.call("closeWindow");
+	}, 100);
+
+}
+$("#videoBox").click(function() { //关闭视频播放器
+	$(this).hide();
+	dp.switchVideo({
+		pic: '',
+		url: '',
+	})
+})
+
+function GetRequest() {
+	var url = location.search; //获取url中"?"符后的字串  
+	var theRequest = new Object();
+	if(url.indexOf("?") != -1) {
+		var str = url.substr(1);
+		strs = str.split("&");
+		for(var i = 0; i < strs.length; i++) {
+			theRequest[strs[i].split("=")[0]] = unescape(strs[i].split("=")[1]);
+		}
+	}
+	return theRequest;
+}

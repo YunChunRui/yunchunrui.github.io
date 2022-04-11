@@ -1,0 +1,38 @@
+if (typeof module === 'object'){
+  
+  const {ipcRenderer} = require('electron');
+  const { dialog } = require('electron').remote;
+  /**
+   * 关闭程序
+   */
+  /*function closeApp() {
+    dialog.showMessageBox({
+      type: 'info',
+      title: '校园智慧安全平台',
+      defaultId: 0,
+      message: '确定关闭系统吗？',
+      buttons: ['取消','确定']
+    },(index)=>{
+      if(index===0){
+      } else {
+        ipcRenderer.send("app.quit");
+      }
+    }) 
+  }*/
+  function closeApp(){
+	 Vue.prototype.$confirm('您确定要退出系统吗?', '退出系统', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+        	ipcRenderer.send("app.quit");
+        }).catch(() => {
+        	     
+        });
+  }
+  function minimize(){
+     ipcRenderer.send("app.minimize");
+  }
+} 
+
+

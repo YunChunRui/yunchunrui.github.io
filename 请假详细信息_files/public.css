@@ -1,0 +1,327 @@
+ /* 页面内容加载完成后展示 */
+    [v-cloak] {
+      display: none;
+    }
+    body,html{
+        height: 100%;
+        width: 100%;
+    }
+    .el-message.el-message--info{
+  		color: #fff!important;
+  		box-shadow:0px 3px 6px rgba(0,0,0,0.16);
+  		font-size: 17px!important;
+  	}
+  	p.el-message__content,i.el-message__icon.el-icon-info,i.el-message__icon.el-icon-success,.el-message__content{
+    	color: #fff!important;
+	}
+    .el-message.el-message--success{
+	    border: none;
+	    box-shadow:0px 3px 6px rgba(0,0,0,0.16);
+	    font-size: 17px!important;
+	}
+	* {
+        text-size-adjust: 100%;
+    }
+	/* input样式 */
+	input{
+    height: 48px!important;
+    width: 100%;
+    border-radius: 50px!important;
+    margin-bottom: 8px!important;
+    padding-left:16px!important;
+    line-height: 48px!important;
+    color: #000000;
+    border:1px solid #F2F2F2!important;
+    font-size: 18px!important;
+    background-color: #F2F2F2!important;
+    -webkit-appearance: none!important;
+}
+ul{
+	list-style: none;
+}
+.mui-icon {
+	color: #727272!important;
+    font-size: 24px!important;
+    line-height: 28px;
+    margin-right: 8px;
+  	}
+.submit_but{
+	height:48px;
+	width: 100%;
+	border:none;
+	border-radius:50px;
+    padding: 0px!important;
+    font-size: 18px!important;
+    color: #FFFFFF!important;
+    background-color: #1A8AFA!important;
+}
+.submit_but:active{
+	background-color: #0066FF!important;
+}
+.u_bottom img {
+    margin-top: 7px;
+    margin-right: 5px;
+}
+.u_bottom_l{
+    float: left;
+}
+.u_bottom_r {
+    float: right;
+}
+.u_bottom span{
+    font-size: 16px;
+    color: #000000;
+}
+.u_bottom {
+    margin-top: 40px;
+}
+.input-focused{
+	border:1px solid #47A1FB!important;
+}
+.clean {
+    clear: both;
+}
+.uncontent {
+    text-align: center;
+    margin-top: 75px;
+}
+.noLimit {
+    color: #007AFF;
+    margin-top: -50px;
+}
+.blue_text{
+	color: #1A8AFA!important;
+}
+.other_text{
+	color: #676767;
+}
+/* 弹框css */
+.shade{
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	background-color: rgba(0,0,0,0.1)
+}
+div#alertBox {
+    width: 200px;
+    background-color: #fff;
+    border: 1px solid rgba(224,224,224,1);
+    border-radius: 10px;
+    text-align: center;
+    z-index: 6;
+    position: fixed;
+    top: 230px;
+    margin-left: 40px;
+}
+.btnBox {
+    height: 40px;
+    line-height: 40px;
+}
+.btnBox div{
+	float: left;
+	width: 50%;
+}
+.alert_left{
+	border-right: 1px solid rgba(224,224,224,1);
+}
+.alertText {
+    height: 50px;
+    line-height: 50px;
+    border-bottom: 1px solid rgba(224,224,224,1);
+    font-weight: bold;
+}
+/* 暂无数据样式 */
+.all_data {
+    text-align: center;
+    font-size: 12px;
+    height: 50px;
+    line-height: 50px;
+    color: #666666;
+}
+
+/* 弹框样式开始 */
+div#successBox,#errorBox {
+   position: fixed;
+    top: 0px;
+    width: 100%;
+    background-color: #00A23B;
+    color: #fff;
+    min-height: 53px;
+    line-height: 25px;
+    font-size: 17px;
+    padding: 14px 16px;
+    box-shadow: 0px 3px 6px rgba(0,0,0,0.16);
+    z-index: 99999;
+    white-space:normal;
+	word-break:break-all;
+	word-wrap:break-word
+}
+#errorBox{
+    background-color: #E51C23!important;
+}
+/* 弹框样式结束 */
+* {
+     -webkit-box-sizing: border-box; 
+    box-sizing: border-box; 
+    -webkit-user-select: none;
+    outline: 0;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-tap-highlight-color: transparent;
+}
+/*输入框兼容IOS*/
+input,textarea{
+	-webkit-user-select:text;
+}
+div{
+    -webkit-user-select:text;
+    height:auto;
+}
+div *{
+    -webkit-user-select:text
+}
+/*输入框兼容IOS*/
+/*弹框样式修改*/
+.mui-popup-text{
+	font-size: 17px!important;
+	line-height: 24px;
+	text-align: left;
+}
+.mui-popup-inner{
+	padding: 30px!important;
+	background-color: #fff!important;
+}
+.mui-popup-buttons{
+	height: 55px!important;
+}
+.mui-popup-button{
+	font-size: 18px!important;
+	background-color: #fff!important;
+	color: #000!important;
+}
+.mui-popup-button.mui-popup-button-bold{
+	color: #007aff!important;
+}
+div#_loading {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    z-index: 9;
+}
+#_loading .slice {
+    margin-top: 150px;
+}
+/* //图文列表 */
+#imgList li{
+    width: 100%;
+    height: 120px;
+    padding: 16px 20px 0 16px;
+    border-bottom: 1px solid #E6E6E6;
+    display: flex;
+    justify-content: space-between;
+}
+#imgList li img{
+    height: 80px;
+    width: 80px;
+    margin-left: 16px;
+}
+#imgList li div p:first-child{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;/*超出3行部分显示省略号，去掉该属性 显示全部*/
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    -moz-box-orient: vertical;
+    font-size: 16px;
+    color: #000;
+    line-height: 20px;
+}
+#imgList li div p:last-child{
+    font-size: 12px;
+    color: #676767;
+}
+#imgList li div p:last-child span{
+    padding: 0 6px;
+    line-height: 20px;
+    background: #EC4B4B;
+    color: #fff;
+    margin-left: 8px;
+    display: inline-block;
+    border-radius: 12px;
+}
+/* tab */
+.tabList li{
+    height: 56px;
+    line-height: 56px;
+    background:#077BF6;
+    color: #ADD5FF;
+    font-size: 16px;
+    min-width: 50px;
+    padding: 0 8px;
+    position: relative;
+    flex-shrink:0
+}
+.tabList{
+    background:#077BF6;
+    height: 56px;
+    display: flex;
+    position: absolute;
+    padding: 0 8px;
+    left: 0;
+    top: 0;
+}
+.tabListBox{
+    height: 67px;
+    width: 100%;
+    overflow-x: auto;
+    position: relative;
+}
+.tabBox{
+    height: 100%;
+    width: 100%;
+    
+}
+.tabList  .active{
+    font-size: 20px;
+    font-weight: bold;
+    color: #fff;
+}
+.tabSanjiao{
+    display: block;
+    position: absolute;
+    margin: auto;
+    left: 0;
+    right: 0;
+    top: 56px;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #077BF6;
+}
+.tabListBox>div{
+    height: 56px;
+    width: 100%;
+    background: #077BF6;
+}
+.other_BigBox_see{
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    position: fixed;
+    z-index: 97;
+    background-color: rgba(0,0,0,1);
+}
+.see_ing_Box {
+    width: 100%;
+    position: fixed;
+    z-index: 99;
+    left: 50%;
+    top: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}

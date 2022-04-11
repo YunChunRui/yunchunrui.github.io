@@ -1,0 +1,989 @@
+let _height = document.body.clientHeight;
+Vue.component('ec-no-result', {
+    template: '<div class="ec-no-result"><ul><li><i class = "icon-metadata ec-reveal font-color"></i></li><li class = "ec-tooltip">暂无相关数据</li></ul></div>'
+})
+
+Vue.component('ec-search-no-result', {
+    template: '<div class="ec-search-no-result"><ul><li><i class = "icon-search_failed ec-reveal font-color"></i></li><li class = "ec-tooltip">没有搜索到您想要的数据</li></ul></div>'
+})
+
+Vue.component('ec-popout', {
+    template: '<div class="ec-popout" style="display:block"><div class="input_box"><slot></slot></div></div>'
+})
+Vue.component('ec-drawerl', { //抽屉
+    data() {
+        return {
+            btn1: '检索',
+            btn2: '重置',
+        }
+    },
+    methods: {
+        closeBox() {
+            this.$emit('close');
+        },
+        closeBox1() {
+            this.$emit('close1');
+        },
+        submitBox() {
+            this.$emit('submit');
+        }
+    },
+    props: {
+        table: {
+            isOpen: false,
+            name: '',
+            btn1: '',
+            btn2: '',
+            btn3: '',
+            uwidth: '',
+        }
+    },
+    created() {
+        if (this.table.btn1) {
+            this.btn1 = this.table.btn1;
+        }
+        if (this.table.btn2) {
+            this.btn2 = this.table.btn2;
+        }
+        if (this.table.uwidth) {
+            this.table.uwidth = this.table.uwidth + 'px'
+        } else {
+            this.table.uwidth = '380px'
+        }
+    },
+    template: `<el-drawer id="u_drawer"
+			  		:title="table.name"
+			  		:visible.sync="table.isOpen"
+			  		:with-header="false"
+                    :modal='false'
+                    :before-close="closeBox1"
+			  		:wrapperClosable = "false"
+                          :size = 'table.uwidth'>
+                          <i id="ec-body-box">
+                        <slot></slot>
+                        </i>
+                      <div class="demo-drawer__footer">
+                      <template v-if="table.btn3">
+                      	<button type="button" class="el-button el-button--default el-quxiao el-button--small" @click = "closeBox()">
+							<span>{{table.btn3}}</span>
+						</button>
+                      </template>
+                      <template v-else>
+                      	<button type="button" class="el-button el-button--default el-button--small el-button--primary " @click = "submitBox()">
+							<span>{{btn1}}</span>
+						</button>
+                        <button type="button" class="el-button el-button--default el-quxiao el-button--small" @click = "closeBox()">
+							<span>{{btn2}}</span>
+						</button>
+                      </template>	
+                      </div>
+				</el-drawer>`
+})
+Vue.component('ec-drawerl1', { //抽屉1
+    data() {
+        return {
+            btn1: '检索',
+            btn2: '重置',
+        }
+    },
+    methods: {
+        closeBox() {
+            this.$emit('close');
+        },
+        submitBox() {
+            this.$emit('submit');
+        }
+    },
+    props: {
+        table: {
+            isOpen: false,
+            name: '',
+            btn1: '',
+            btn2: '',
+            btn3: '',
+            uwidth: '',
+        }
+    },
+    created() {
+        if (this.table.btn1) {
+            this.btn1 = this.table.btn1;
+        }
+        if (this.table.btn2) {
+            this.btn2 = this.table.btn2;
+        }
+        if (this.table.uwidth) {
+            this.table.uwidth = this.table.uwidth + 'px'
+        } else {
+            this.table.uwidth = '380px'
+        }
+    },
+    template: `<el-drawer id="u_drawer"
+			  		:title="table.name"
+			  		:visible.sync="table.isOpen"
+			  		:with-header="false"
+                    :modal='false'
+                    :before-close="closeBox"
+			  		:wrapperClosable = "false"
+                          :size = 'table.uwidth'>
+                          <i id="ec-body-box">
+                        <slot></slot>
+                        </i>
+                      <div class="demo-drawer__footer">
+                      <template v-if="table.btn3">
+                      	<button type="button" class="el-button el-button--default el-quxiao el-button--small" @click = "closeBox()">
+							<span>{{table.btn3}}</span>
+						</button>
+                      </template>
+                      <template v-else>
+                      	<button type="button" class="el-button el-button--default el-button--small el-button--primary " @click = "submitBox()">
+							<span>{{btn1}}</span>
+						</button>
+                        <button type="button" class="el-button el-button--default el-quxiao el-button--small" @click = "closeBox()">
+							<span>{{btn2}}</span>
+						</button>
+                      </template>	
+                      </div>
+				</el-drawer>`
+})
+Vue.component('ec-check', { //多选组件
+    methods: {
+        all_check(val) {
+            let arry = [];
+            let _data = this.table.isdata;
+            for (let i in _data) {
+                arry.push(_data[i].id)
+            }
+            this.table.chechdata = val ? arry : [];
+            this.table.isindeterminate = false
+        },
+        back_check() {
+            let arr = []
+            for (let i = 0; i < this.table.isdata.length; i++) {
+                if (this.table.chechdata.indexOf(this.table.isdata[i].id) == -1) {
+                    arr.push(this.table.isdata[i].id)
+                }
+            }
+            if (arr.length == this.table.isdata.length) {
+                this.table.allcheck = true
+            } else {
+                this.table.allcheck = false
+            }
+            this.table.chechdata = arr
+            this.table.isindeterminate = arr.length > 0 && arr.length < this.table.isdata.length;
+        },
+        changecheck(value) {
+            let checkedCount = value.length;
+            this.table.allcheck = checkedCount === this.table.isdata.length;
+            this.table.isindeterminate = checkedCount > 0 && checkedCount < this.table.isdata.length;
+        },
+    },
+    props: {
+        table: {
+            allcheck: false,
+            backcheck: false,
+            isindeterminate: false,
+            isdata: [],
+            isdisabled: false,
+            chechdata: [],
+            boxsize: {
+                width: "480px",
+            },
+            boxsize2: {
+                height: "85px",
+            },
+        }
+    },
+    created() {
+
+    },
+    template: `   <div class="checkFatherBox" :style='table.boxsize'>
+        <div class="checkHeader">
+            <el-checkbox v-model="table.allcheck" :indeterminate="table.isindeterminate" @change='all_check' :disabled='table.isdisabled'>全选</el-checkbox>
+            <el-checkbox v-model="table.backcheck" @change='back_check' :disabled='table.isdisabled'>反选</el-checkbox>
+            <div class='checking'>已选中<span style="color: #1e1e1e;margin:0 2px;font-weight:bold">{{table.chechdata.length}}</span>个</div>
+        </div>
+        <div class="checkBox" :style='table.boxsize2'>
+            <el-checkbox-group v-model="table.chechdata" @change="changecheck" :disabled='table.isdisabled'>
+                <el-checkbox v-for="item in table.isdata" :label="item.id" :key="item.id" :title='item.name'>{{item.name}}</el-checkbox>
+            </el-checkbox-group>
+        </div>
+    </div>`
+})
+Vue.component('ec-tips', { //提示文字
+    props: {
+        table: {
+            name: '',
+            texts: [],
+        }
+    },
+    template: `<div class="ec_tipsBox">
+					<div class="explain _fist">{{table.name}}：</div>
+					<div class="explain">
+						<p v-for="(item,index) in table.texts">{{item}}</p>
+					</div>
+					<div style="clear: both;"></div>
+				</div>`
+})
+Vue.component('ec-check1', { //多选组件
+    methods: {
+        all_check(val) {
+            let arry = [];
+            let _data = this.table.isdata;
+            for (let i in _data) {
+                arry.push(_data[i].id)
+            }
+            this.table.chechdata = val ? arry : [];
+            this.table.isindeterminate = false
+            this.geidata()
+        },
+        back_check() {
+            let arr = []
+            for (let i = 0; i < this.table.isdata.length; i++) {
+                if (this.table.chechdata.indexOf(this.table.isdata[i].id) == -1) {
+                    arr.push(this.table.isdata[i].id)
+                }
+            }
+            if (arr.length == this.table.isdata.length) {
+                this.table.allcheck = true
+            } else {
+                this.table.allcheck = false
+            }
+            this.table.chechdata = arr
+            this.table.isindeterminate = arr.length > 0 && arr.length < this.table.isdata.length;
+            this.geidata()
+        },
+        changecheck(value) {
+            let checkedCount = value.length;
+            this.table.allcheck = checkedCount === this.table.isdata.length;
+            this.table.isindeterminate = checkedCount > 0 && checkedCount < this.table.isdata.length;
+            this.geidata()
+        },
+        checkshow() {
+            this.table.checkboxshow = true
+            this.table.defalutedate = JSON.parse(JSON.stringify(this.table.chechdata))
+            if (this.table.chechdata.length == this.table.isdata.length) {
+                this.table.allcheck = true
+            } else {
+                this.table.allcheck = false
+            }
+            this.table.isindeterminate = this.table.chechdata.length > 0 && this.table.chechdata.length < this.table.isdata.length;
+        },
+        checkcancel() {
+            this.table.checkboxshow = false
+            this.table.chechdata = JSON.parse(JSON.stringify(this.table.defalutedate))
+            this.geidata()
+        },
+        checksure() {
+            this.table.checkboxshow = false
+            this.geidata()
+        },
+        geidata() {
+            let arr = this.table.chechdata
+            if (arr.length != 0) {
+                for (let i = 0; i < this.table.isdata.length; i++) {
+                    if (arr[arr.length - 1] == this.table.isdata[i].id) {
+                        this.table.checktext = this.table.isdata[i].name
+                    }
+                }
+            }
+        },
+    },
+    created() {
+
+    },
+    props: {
+        table: {
+            allcheck: false,
+            backcheck: false,
+            isindeterminate: false,
+            isdata: [],
+            defalutedate: [],
+            isdisabled: false,
+            checkboxshow: false,
+            chechdata: [],
+            checktext: "",
+            textname: "门禁通道",
+            boxsize: {
+                width: "480px",
+            },
+        },
+    },
+    template: `  
+    <div>
+        <div :style='table.boxsize' class='textBox' @click='checkshow' v-if='table.chechdata.length!=0'>
+            <span>{{table.checktext}}</span><span v-show='table.chechdata.length!=1'>+{{table.chechdata.length-1}}</span>
+        </div>
+        <div :style='table.boxsize' class='textBox' @click='checkshow' v-else></div>
+        <div style='position: fixed;width:100%;height:100%;left:0;top:0;z-index: 999;display: flex;align-items: center;justify-content: center;' v-show='table.checkboxshow'>
+            <div :class='table.isdata.length<=15?"checkFatherBox checkFatherBox1 minBox":"checkFatherBox checkFatherBox1 maxBox"'>
+                <div class="checkHeader" style='display:flex;justify-content: space-between;'>
+                    <span style='color:#2b579a;font-weight:bold'>{{table.textname}}</span>
+                    <div>
+                        <el-checkbox v-model="table.allcheck" :indeterminate="table.isindeterminate" @change='all_check' :disabled='table.isdisabled'>全选</el-checkbox>
+                        <el-checkbox v-model="table.backcheck" @change='back_check' :disabled='table.isdisabled'>反选</el-checkbox>
+                        <div class='checking'>已选中<span style="color: #1e1e1e;margin:0 2px;font-weight:bold">{{table.chechdata.length}}</span>个</div>
+                    </div>
+                </div>
+                <div class="checkBox" style='max-height:650px'>
+                    <el-checkbox-group v-model="table.chechdata" @change="changecheck" :disabled='table.isdisabled'>
+                        <el-checkbox v-for="item in table.isdata" :label="item.id" :key="item.id" :title='item.name'>{{item.name}}</el-checkbox>
+                    </el-checkbox-group>
+                </div>
+                <div class='checkBtn'>
+                    <el-button style='color:red' @click="checkcancel">取消</el-button>
+                    <el-button type="primary" @click="checksure">确定</el-button>
+                </div>
+            </div>
+        </div>
+    </div> 
+    `
+})
+Vue.component('ec-search', { //模糊搜索框 
+    methods: {
+        querySearch(queryString, cb) {
+            var restaurants = uniqObjInArray(this.table.texts);
+            // var results = queryString ? restaurants.filter(this.createFilter(queryString)) : restaurants;
+            // 调用 callback 返回建议列表的数据
+            cb(restaurants);
+        },
+        createFilter(queryString) {
+            return (restaurant) => {
+                return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+            };
+        },
+        handleSelect(obj) {
+            this.$emit('select', obj);
+        },
+        findUser(obj) {
+            this.$emit('find', obj);
+        },
+        cleanValue() {
+            this.table.searchValue = '';
+            $('.fuzzy_search input').focus()
+            this.table.back.background='#000'
+            this.$emit('clean');
+        },
+        highSearchShow(){
+            this.$emit('highsearch');
+        }
+    },
+    props: {
+        table: {
+            searchValue: '',
+            texts: [],
+            placeholder: "",
+            maxlength: '20',
+            highSearch:true,
+            img_head: ctxPath + 'images/btnBox/screen.png',
+            back:{
+                background:"#000"
+            }
+        }
+    },
+    template: ` <div class="ec_btnBox" style="display: flex;align-items: center;">
+                    <button class="ec_btn" @click="highSearchShow" style="border-right: 1px solid #DEDEDE;margin-right: 4px;" v-show='table.highSearch'>
+                        <img :src="table.img_head" width="18px" height="18px"
+                            style='margin-right:4px' />高级检索
+                    </button>
+                    <el-autocomplete class="inline-input fuzzy_search" v-model="table.searchValue" @keyup.enter.native="findUser(table.searchValue)" :fetch-suggestions="querySearch"
+                    :title='table.placeholder' :trigger-on-focus=false :placeholder="table.placeholder" @select="handleSelect" :maxlength="table.maxlength">
+                        <i slot="suffix" class="el-input__icon clean" :style='table.back' title='清除' @click='cleanValue' v-show='table.searchValue!=""'>×</i>
+                        <template slot-scope="{item}">
+                            <span class="name">{{ item.value }}</span>
+                            <span class="addr">{{ item.key }}</span>
+                          </template>
+						<img slot="suffix" :src = "'/images/btnBox/search.png'"  width="16px" height = "16px" style='position: absolute;left: -22px;top: 6px;cursor: pointer;' @click="findUser(table.searchValue)"/>
+                    </el-autocomplete>
+                </div>`
+})
+Vue.component('ec-page', { //分页器
+    methods: {
+        changeSize() {
+            this.table.currentPage = 1
+            this.table.defaluteSize = this.table.pageSize
+            this.table.goSize=1
+            this.$emit('changesize', this.table.pageSize);
+        },
+        changePage() {
+            if (this.table.goSize != "") {
+                if (this.table.goSize > Math.ceil(this.table.allPage / this.table.pageSize)) {
+                    this.table.goSize = Math.ceil(this.table.allPage / this.table.pageSize)
+                }
+                this.table.currentPage = this.table.goSize
+            }
+            this.$emit('changepage', this.table.currentPage);
+        },
+        prevPage() {
+            if (this.table.currentPage > 1) {
+                this.table.currentPage--
+            }
+            this.$emit('changepage', this.table.currentPage);
+        },
+        nextPage() {
+            var val = Math.ceil(this.table.allPage / this.table.pageSize)
+            if (this.table.currentPage < val) {
+                this.table.currentPage++
+            }
+            this.$emit('changepage', this.table.currentPage);
+        },
+        numberRule(val) {
+            if (val != "") {
+                var arr = val.split('')
+                var arr1 = []
+                for (var i = 0; i < arr.length; i++) {
+                    if (new RegExp('^[0-9][0-9]*$').test(arr[i])) {
+                        arr1.push(arr[i])
+                    }
+                }
+                if(arr1.length!=0){
+                    this.table.goSize = parseInt(arr1.join(''))
+                }else{
+                    this.table.goSize=""
+                }
+            }
+        },
+    },
+    props: {
+        table: {
+            pageSize: 20,
+            pageSize1: 20,
+            defaluteSize: 20,
+            currentPage: 1,
+            allPage: 0,
+            goSize: 1
+        }
+    },
+    template: `<div class='page_box'>
+        <el-select v-model="table.pageSize" placeholder="请选择" @change='changeSize'>
+            <el-option :label="table.pageSize1+'条/页'" :value="table.pageSize1"></el-option>
+            <el-option label="50条/页" :value="50"></el-option>
+            <el-option label="100条/页" :value="100"></el-option>
+        </el-select>
+        <el-button @click='prevPage' :disabled='table.currentPage<=1' title='上一页'><span class='el-icon-caret-left'></span></el-button>
+        <span class='currtPage' title='当前页/总页数'>{{table.currentPage}}/{{Math.ceil(table.allPage/table.pageSize)==0?1:Math.ceil(table.allPage/table.pageSize)}}</span>
+        <el-button @click='nextPage' title='下一页' :disabled='table.currentPage==Math.ceil(table.allPage/table.pageSize)'><span class='el-icon-caret-right'></span></el-button>
+        <span style='margin:0 8px 0 10px;width:35px'>前往</span>
+        <el-input v-model="table.goSize" ref='goSize' placeholder=" " class='go_size' @blur='changePage' @input='numberRule'  @keyup.enter.native="changePage"></el-input>
+        <span style='margin:0 8px'>页</span>
+        <span style='min-width:67px;text-overflow: ellipsis;overflow: hidden;white-space: nowrap;' :title='"共"+table.allPage+"条"'>共{{table.allPage}}条</span>
+    </div>`
+})
+Vue.component('ec-btn', { //按钮组 
+    data() {
+        return {
+            img_head: ctxPath + 'images/btnBox/',
+        }
+    },
+    methods: {
+        select(obj) {
+            if ('pagebtn') {
+                this.$emit('pagebtn', obj);
+            }
+        },
+    },
+    props: {
+        table: {
+            btnList: [{
+                flag: "",
+                isDisabled: "",
+                img: "",
+                name: "",
+                disabledImg: "",
+                title: ""
+            }]
+        }
+    },
+
+    template: `	<div class = "ec_btnBox">
+                    <button v-for = "item in table.btnList" class = "ec_btn" @click = "select(item.flag)" :disabled='item.isDisabled' :title='item.title'>
+                        <img :src = "img_head+item.img"  width="18px" height = "18px" style='margin-right:4px' v-if="item.img&&!item.isDisabled"/>
+                        <img :src = "img_head+item.disabledImg"  width="18px" height = "18px" style='margin-right:4px' v-if="item.disabledImg&&item.isDisabled"/>
+                        {{item.name}}
+                    </button>
+                </div>`
+})
+Vue.component('ec-drawerlform', { //抽屉表单
+    methods: {
+        closeBox() {
+            this.$emit('close');
+        },
+        submitBox() {
+            this.$emit('submit');
+        }
+    },
+    props: {
+        table: {
+            isOpen: false,
+            name: '',
+            btn1: '取消',
+            btn2: '确定',
+            uwidth: '',
+        }
+    },
+    template: `<el-drawer id="drawerlform"
+			  		:title="table.name"
+			  		:visible.sync="table.isOpen"
+			  		:with-header="false"
+			  		:wrapperClosable = "false"
+			  			:size = table.uwidth>
+                      <slot></slot>
+                      <div class="demo-drawer__footer">
+                        <button type="button" class="el-button el-button--default el-button--small el-quxiao el-dore-btn" @click = "closeBox()">
+							<span>取消</span>
+						</button>
+						<button type="button" class="el-dore-btn el-button el-button--default el-button--small el-button--primary " @click = "submitBox()">
+							<span>提交</span>
+						</button>
+							
+                      </div>
+				</el-drawer>`
+})
+Vue.component('ec-untable', { //特殊无边框表格
+    props: {
+        table: {
+            head: [],
+        }
+    },
+    template: `<div class = "ec-unTable">
+				    <table width="100%">
+				    	<thead>
+				    		<tr>
+				    			<th v-for="(item,key) in table.head" :width="item.width" :style="item.maxwidth">{{item.name}}</th>
+				    		</tr>
+				    	</thead>
+				    </table>
+				    <slot></slot>
+    		  </div>`
+})
+Vue.component('ec-addmore', { //加载更多
+    methods: {
+        addMore() {
+            this.$emit('addmore');
+        }
+    },
+    props: {
+        isshow: true
+    },
+    template: `
+				    <div class="un_table_foot" v-if="isshow">
+				    	<span @click="addMore">加载更多...</span>
+				    </div>`
+})
+Vue.component('ec-fieldset', { //仿fieldset标签
+    data() {
+        return {
+            img_head: ctxPath + 'images/btnBox/help.png',
+            showDiv: true,
+        }
+    },
+    methods: {
+
+    },
+    props: {
+        table: {
+            name: '',
+            type: '',
+            text: '',
+            show: false,
+        }
+    },
+    template: `<div class = "ec-fieldsetBox">
+				    <span class="ec-tab">{{table.name}}
+					    <el-tooltip  effect="titeBox" :placement="table.type" v-if="table.show">
+					    	<div slot="content"  class="ec-titeBox">
+					    		<p v-for="(item,key) in table.text">{{item}}</p>
+					    	</div>
+					      	<img :src="img_head" width="14px" heigth="14px" class="ec-help-img">
+					    </el-tooltip>
+				    </span>
+				    <div class="ec-fieldset">
+				    	<slot></slot>
+				    </div>
+    		  </div>`
+})
+Vue.component('ec-help', { //帮助按钮
+    data() {
+        return {
+            img_head: ctxPath + 'images/btnBox/help.png',
+        }
+    },
+    props: {
+        table: {
+            type: '',
+            text: '',
+        }
+    },
+    template: `<div class = "ec-help">
+				     <el-tooltip  effect="titeBox" :placement="table.type">
+					    	<div slot="content"  class="ec-titeBox">
+					    		<p v-for="(item,key) in table.text">{{item}}</p>
+					    	</div>
+					      	<img :src="img_head" width="14px" heigth="14px" class="ec-help-img">
+					    </el-tooltip>
+    		  </div>`
+})
+Vue.component('ec-table-btn', { //table按钮组 
+    data() {
+        return {
+            img_head: ctxPath,
+        }
+    },
+    methods: {
+        clickBtn(obj) {
+            if ('tabbtn') {
+                this.$emit('tabbtn', obj);
+            }
+        },
+    },
+    props: {
+        table: {
+            btnList: [{
+                url: "",
+            }]
+        }
+    },
+
+    template: `	<div class = "ec_table_btnBox">
+                    <span v-for="(item,key) in table.btnList" @click="clickBtn(key)">
+                    	<img alt="按钮" :src="img_head+item.url" height="height: 20px;" width="20px">
+                    </span>
+                </div>`
+})
+Vue.component('ec-form-error', { //前端提交错误提示
+    data() {
+        return {
+            isText: '',
+        }
+    },
+    methods: {
+        errorHide() {
+            this.$emit('errhide');
+        },
+    },
+    props: {
+        errortext: '',
+    },
+  
+    created() {
+
+    },
+    template: `	<p class="ec-error" v-if="errortext">
+					<span>{{errortext}}</span>
+					<span class="el-icon-error errorBtn" @click="errorHide"></span>
+				</p>`
+})
+Vue.component('ec-btn1', {    //竖向按钮组 
+    data() {
+        return {
+            img_head: ctxPath + 'images/btnBox/',
+        }
+    },
+    methods:{
+        select(obj) {
+            if ('pagebtn') {
+                this.$emit('pagebtn', obj);
+            }
+        },
+    },
+    props: {
+        table:{ 
+            btnList:[{
+                flag:"",
+                isDisabled:"",
+                img:"",
+                name:"",
+                disabledImg:"",
+                title:"",
+            } ] ,
+            width:{
+                width:""
+            }
+        }
+    },
+ 
+    template: `	<div class = "ec_btnBox1" :style='table.width'>
+                    <button  v-for = "item in table.btnList" class = "ec_btn1" @click = "select(item.flag)" :disabled='item.isDisabled' :title='item.title'>
+                        <img :src = "img_head+item.img"  width="18px" height = "18px" style='margin-right:4px' v-if="item.img&&!item.isDisabled"/>
+                        <img :src = "img_head+item.disabledImg"  width="18px" height = "18px" style='margin-right:4px' v-if="item.disabledImg&&item.isDisabled"/>
+                        {{item.name}}
+                    </button>
+                </div>`
+})
+Vue.component('ec-list', {    //表单排列样式
+    props: {
+        lable:''
+    },
+    template: `	<div class="ec-list-div">
+                   <div class="ec-lift-box">{{lable}}</div>
+    				<div class="ec-right-box">
+    					<slot></slot>
+    				</div>
+                </div>`
+})
+Vue.component('ec-point', {    //锚点
+    methods:{
+        checkli(val,val1){
+            this.table.checkI=val1
+            this.$emit('checkli', val);
+        }
+    },
+    props: {
+        table:{
+            pointArr:[{
+                name:"",
+                id:""
+            }],
+            checkI:0,
+           size:{
+               left:"",
+               top:"",
+               width:""
+           }
+        }
+    },
+    template: `<ul class='ecPoint' :style='table.size'>
+                    <li v-for='item,index in table.pointArr' @click='checkli(item.id,index)' :class='table.checkI==index?"checkLi":""'>{{item.name}}</li>
+                </ul>
+                `
+})
+Vue.component('ec-list-input', {    //input框样式
+	data() {
+        return {
+            margin_left:'',
+            img_head: ctxPath + 'images/btnBox/help.png',
+            isShow:false,
+            type1:""
+        }
+    },
+    props: ['lable','margin','showhelp','ectip','type','bitian'],
+    created() {
+		if(this.margin){
+			this.margin_left = 'margin-right:'+this.margin+'px';
+		}else{
+			this.margin_left = 'margin-right: 32px;';
+		}
+		if(this.showhelp){
+			this.isShow = true;
+		}else{
+			this.isShow = false;
+        }
+        if(this.type){
+			this.type1 = this.type;
+		}else{
+			this.type1 = 'top';
+		}
+   },
+    template: `	<div class="ec-list-input">
+                   <div class="ec-lift-lable" :style="margin_left">
+                   	<span><span style='color:red'>{{bitian}}</span>{{lable}}</span>
+                   	<span class = "ec-help" v-if="isShow">
+				     	<el-tooltip  effect="titeBox" :placement="type1">
+					    	<div slot="content"  class="ec-titeBox">
+					    		<p>{{ectip}}</p>
+					    	</div>
+					      	<img :src="img_head" width="14px" heigth="14px" class="ec-help-img">
+					    </el-tooltip>
+    		  		</span>
+                   </div>
+    				<div class="ec-right-input">
+    					<slot></slot>
+    				</div>
+                </div>`
+})
+Vue.component('ec-all', {    //多项目展示
+    data() {
+        return {
+            img_head: ctxPath + 'images/btnBox/title.png',
+        }
+    },
+    props: {
+        table:{
+            size:{                 //自定义盒子大小
+                width:"483px",
+                height:"116px"
+            },
+            title:"",           //提示文字
+            headshow:true,        //头部显示隐藏
+            name:"",                //标题名字
+            titleShow:false,         //提示文字显示隐藏
+            allCheck:false,         //d多选绑定值
+            backCheck:false,         //反选绑定值
+            search:"",         //搜索框绑定值
+            allcheckshow:true,         //多选显示隐藏
+            backcheckshow:true,         //反选显示隐藏
+            searchshow:true         //搜索框显示隐藏
+        }
+    },
+    methods:{
+        allCheck(val){
+            this.$emit('allcheck', val);
+        },
+        backCheck(val){
+            this.$emit('backcheck', val);
+        }
+    },
+    template: `
+            <div :style='table.size' class='ecAllBox'>
+                <div>{{table.name}}</div>
+                <div>
+                    <div class='ecAllHead' v-show='table.headshow'>
+                        <div>  
+                            <el-checkbox v-model="table.allCheck" @change='allCheck' v-show='table.allcheckshow'>全选</el-checkbox>
+                            <el-checkbox v-model="table.backCheck" @change='backCheck'  v-show='table.backcheckshow'>反选</el-checkbox>
+                        </div>
+                        <el-input placeholder="请输入内容" v-model="table.search" clearable v-show='table.searchshow'></el-input>
+                    </div>
+                    <div class='ecAllMain' v-show='!table.titleShow'>
+                        <slot></slot>
+                    </div>
+                    <p v-show='table.titleShow' class='ecAllTitle'><img :src='img_head'>{{table.title}}</p>
+                </div>
+            </div>
+    `
+})
+Vue.component('ec-card', {    //表格卡片
+    data() {
+        return {
+            btn1: '提交',
+            btn2: '取消',
+        }
+    },
+    props: {
+        table:{
+            title:"",  //卡片名称
+            btn1: '',  //双按钮1
+            btn2: '',  //双按钮2
+            btn3: '',  //单按钮
+        }
+    },
+    methods:{
+        closeBox() {
+            this.$emit('close');
+        },
+        submitBox() {
+            this.$emit('submit');
+        }
+    },
+    created(){
+        if (this.table.btn1) {
+            this.btn1 = this.table.btn1;
+        }
+        if (this.table.btn2) {
+            this.btn2 = this.table.btn2;
+        }
+    },
+    template: `
+           <div class='ecCardBox'>
+                <div>
+                    <h1 class='ecCardH1'>{{table.title}}<span class='el-icon-close' style='font-size:20px' @click='closeBox()'></span></h1>
+                    <i id="ec-body-box">
+                    	<slot></slot>
+                    </i>
+                    <div class='ecCardBtn'>
+                        <template v-if="table.btn3">
+                            <button type="button" class="el-button el-button--default el-quxiao el-button--small" @click = "closeBox()">
+                            <span>{{table.btn3}}</span>
+                        </button>
+                        </template>
+                        <template v-else>
+                            <button type="button" class="el-button el-button--default el-button--small el-button--primary " @click = "submitBox()">
+                            <span>{{btn1}}</span>
+                        </button>
+                        <button type="button" class="el-button el-button--default el-quxiao el-button--small" @click = "closeBox()">
+                            <span>{{btn2}}</span>
+                        </button>
+                        </template>	
+                    </div>
+                </div>
+           </div>
+    `
+})
+Vue.component('ec-img', {    //查看大图
+    props:['src','imgshow'],
+    methods:{
+        closeImg() {
+            this.reg=0
+            this.isScale=true
+            var div=document.getElementById('tracnImg')
+            div.style.transform = `rotate(0deg)`;
+            this.$emit('close');
+        },
+        goLeft(){
+            var width=$("#tracnImg").outerWidth() 
+            var height=$("#tracnImg").outerHeight()
+            this.reg=this.reg-90
+            var div=document.getElementById('tracnImg')
+            if(width>height){
+                if(this.isScale){
+                    this.isScale=false
+                    div.style.transform = `rotate(${this.reg}deg) scale(${height/width})`;
+                }else{
+                    this.isScale=true
+                    div.style.transform = `rotate(${this.reg}deg) scale(1)`;
+                }
+            }else{
+                div.style.transform = `rotate(${this.reg}deg)`;
+            }
+        },
+        goRight(){
+            var width=$("#tracnImg").outerWidth() 
+            var height=$("#tracnImg").outerHeight()
+            this.reg=this.reg+90
+            var div=document.getElementById('tracnImg')
+            if(width>height){
+                if(this.isScale){
+                    this.isScale=false
+                    div.style.transform = `rotate(${this.reg}deg) scale(${height/width})`;
+                }else{
+                    this.isScale=true
+                    div.style.transform = `rotate(${this.reg}deg) scale(1)`;
+                }
+            }else{
+                div.style.transform = `rotate(${this.reg}deg)`;
+            }
+        },
+    },
+    data(){
+        return{
+            reg:0,
+            isScale:true
+        }
+    },
+    template: `
+           <div class='bigImg' v-show='imgshow' style='background:rgba(0,0,0,0.3)'>
+                <div id='imgBox' style='display:flex;flex-direction: column;'>
+                    <div id='imgBox1' style='display: flex;justify-content: center;align-items: center;'>
+                        <img :src='src'  id='tracnImg'>
+                        <span class='el-icon-close' @click='closeImg'></span>
+                    </div>
+                    <p style='height:40px;line-height:40px;background:#fff;text-align:center;display:flex;justify-content: center;z-index:999'>
+                        <span class='el-icon-refresh-left' style='margin-right:6px;cursor:pointer;display:flex;align-items:center' @click='goLeft'><span style='font-size:12px'>向左旋转</span></span>
+                        <span class='el-icon-refresh-right' style='cursor:pointer;display:flex;align-items:center'  @click='goRight'><span style='font-size:12px'>向右旋转</span></span>
+                    </p>
+                </div>
+           </div>
+    `
+})
+Vue.component('ec-list-box', {    //列表外层包裹
+    template: `
+           <div class='ec_text_box'>
+                <slot></slot>
+           </div>
+    `
+})
+Vue.component('ec-list-text', {    //列表外层包裹
+    template: `
+           <div class='ec-text'>
+                <slot></slot>
+           </div>
+    `
+})
+Vue.component('ec-text', {    //普通文本二
+    props:['text','name'],
+    template: `
+           <div class='text_list_2'>
+               <div>{{text}}</div>
+               <div>{{name}}</div>
+           </div>
+    `,
+})
